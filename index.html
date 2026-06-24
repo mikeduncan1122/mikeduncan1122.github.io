@@ -13,7 +13,81 @@
     box-sizing:border-box;
     font-family:Segoe UI, sans-serif;
 }
+<script>
+const songs = [
+    {
+        title: "drama queen - jaydes",
+        file: "dramaqueen.mp3"
+    },
+    {
+        title: "Take Me Home - PinkPantheress",
+        file: "takemehome.mp3"
+    },
+    {
+        title: "HONEST - Baby Keem",
+        file: "honest.mp3"
+    }
+];
 
+let currentSong = 0;
+
+const player = document.getElementById("player");
+const seekbar = document.getElementById("seekbar");
+const songTitle = document.getElementById("songTitle");
+
+function loadSong(index){
+    currentSong = index;
+
+    player.src = songs[index].file;
+    songTitle.textContent = songs[index].title;
+
+    player.load();
+}
+
+function togglePlay(){
+    if(player.paused){
+        player.play();
+    }else{
+        player.pause();
+    }
+}
+
+function nextSong(){
+    currentSong++;
+
+    if(currentSong >= songs.length){
+        currentSong = 0;
+    }
+
+    loadSong(currentSong);
+    player.play();
+}
+
+function previousSong(){
+    currentSong--;
+
+    if(currentSong < 0){
+        currentSong = songs.length - 1;
+    }
+
+    loadSong(currentSong);
+    player.play();
+}
+
+player.addEventListener("ended", nextSong);
+
+player.addEventListener("timeupdate", () => {
+    seekbar.value =
+        (player.currentTime / player.duration) * 100 || 0;
+});
+
+seekbar.addEventListener("input", () => {
+    player.currentTime =
+        (seekbar.value / 100) * player.duration;
+});
+
+loadSong(0);
+</script>
 body{
     min-height:100vh;
     display:flex;
@@ -140,6 +214,29 @@ h1{
       there isnt really anything right now but i made a free
       movie site for you called sinflix <3
     </p>
+    <div class="music-player">
+
+    <div class="song-title" id="songTitle">
+        Song 1
+    </div>
+
+    <audio id="player"></audio>
+
+    <div class="controls">
+        <button onclick="previousSong()">⏮</button>
+        <button onclick="togglePlay()">▶️ / ⏸️</button>
+        <button onclick="nextSong()">⏭</button>
+    </div>
+
+    <input
+        type="range"
+        id="seekbar"
+        class="seekbar"
+        value="0"
+        min="0"
+        max="100">
+
+</div>
 
     <div class="buttons">
         <a href="https://youenvy.me/sinflix" class="btn">sinflix</a>
