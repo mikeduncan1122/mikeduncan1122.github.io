@@ -60,6 +60,13 @@ body::before{
     box-shadow:
         0 0 40px rgba(100,0,180,.25),
         inset 0 0 20px rgba(255,255,255,.03);
+
+    position:absolute;
+    left:50%;
+    top:50%;
+    transform:translate(-50%,-50%);
+    cursor:grab;
+    user-select:none;
 }
 
 
@@ -123,13 +130,114 @@ h1{
 }
 </style>
 </head>
+    <script>
+const win = document.getElementById("window");
+
+let x = (window.innerWidth - win.offsetWidth) / 2;
+let y = (window.innerHeight - win.offsetHeight) / 2;
+
+let vx = 0;
+let vy = 0;
+
+let dragging = false;
+let offsetX = 0;
+let offsetY = 0;
+
+function updatePosition() {
+    win.style.left = x + "px";
+    win.style.top = y + "px";
+    win.style.transform = "none";
+}
+
+updatePosition();
+
+win.addEventListener("mousedown", e => {
+    dragging = true;
+    win.style.cursor = "grabbing";
+
+    offsetX = e.clientX - x;
+    offsetY = e.clientY - y;
+
+    vx = 0;
+    vy = 0;
+});
+
+document.addEventListener("mousemove", e => {
+    if (!dragging) return;
+
+    let newX = e.clientX - offsetX;
+    let newY = e.clientY - offsetY;
+
+    vx = newX - x;
+    vy = newY - y;
+
+    x = newX;
+    y = newY;
+
+    updatePosition();
+});
+
+document.addEventListener("mouseup", () => {
+    if (!dragging) return;
+
+    dragging = false;
+    win.style.cursor = "grab";
+});
+
+function animate() {
+
+    if (!dragging) {
+
+        x += vx;
+        y += vy;
+
+        vx *= 0.992;
+        vy *= 0.992;
+
+        if (Math.abs(vx) < 0.02) vx = 0;
+        if (Math.abs(vy) < 0.02) vy = 0;
+
+        if (x <= 0) {
+            x = 0;
+            vx *= -1;
+        }
+
+        if (y <= 0) {
+            y = 0;
+            vy *= -1;
+        }
+
+        if (x >= window.innerWidth - win.offsetWidth) {
+            x = window.innerWidth - win.offsetWidth;
+            vx *= -1;
+        }
+
+        if (y >= window.innerHeight - win.offsetHeight) {
+            y = window.innerHeight - win.offsetHeight;
+            vy *= -1;
+        }
+
+        updatePosition();
+    }
+
+    requestAnimationFrame(animate);
+}
+
+animate();
+
+window.addEventListener("resize", () => {
+    x = Math.min(x, window.innerWidth - win.offsetWidth);
+    y = Math.min(y, window.innerHeight - win.offsetHeight);
+    updatePosition();
+});
+</script>
 <body>
 
-<div class="container">
+<div class="container" id="window">
 
     <div class="profile">
         <!-- this is for me later, put the image here retard dont forget pls ilysm -->
-        <img src="https://cdn.discordapp.com/avatars/516102055945961472/864e5c368b9bb65cbd6f330a143e2b31.webp?size=1024" alt="bad image!">
+        <img src="https://cdn.discordapp.com/avatars/516102055945961472/9f32e7a1f8b78fa3cc1aa92bb9bc3837.webp?size=1024" alt="bad image!">
     </div>
 
     <h1>2manysins</h1>
