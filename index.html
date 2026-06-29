@@ -193,7 +193,22 @@ h1{
 </head>
     
 <body>
+  
+<div class="music-player" id="music">
+    <div class="music-header">
+        <span>now playing:</span>
+        <span id="trackName">none</span>
+    </div>
 
+    <div class="music-controls">
+        <button id="prevBtn">⏮</button>
+        <button id="playBtn">⏯</button>
+        <button id="nextBtn">⏭</button>
+    </div>
+
+    <audio id="audio"></audio>
+</div>
+  
 <div class="container" id="window">
 
     <div class="profile">
@@ -217,20 +232,7 @@ h1{
         <a href="https://last.fm/user/three_dpi" class="btn">last.fm</a>
     </div>
     
-<div class="music-player" id="music">
-    <div class="music-header">
-        <span>now playing:</span>
-        <span id="trackName">none</span>
-    </div>
 
-    <div class="music-controls">
-        <button id="prevBtn">⏮</button>
-        <button id="playBtn">⏯</button>
-        <button id="nextBtn">⏭</button>
-    </div>
-
-    <audio id="audio"></audio>
-</div>
 
 
 <script>
