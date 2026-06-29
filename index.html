@@ -105,6 +105,30 @@ body::before{
     background:rgba(160,0,220,.35);
     transform:translateY(-2px);
 }
+  .progress-container{
+    width:100%;
+    height:6px;
+    background:rgba(255,255,255,0.1);
+    border-radius:10px;
+    margin-top:10px;
+    overflow:hidden;
+}
+
+.progress-bar{
+    height:100%;
+    width:0%;
+    background:rgba(180,0,255,0.7);
+    border-radius:10px;
+    transition:width 0.1s linear;
+}
+
+.time{
+    display:flex;
+    justify-content:space-between;
+    font-size:11px;
+    margin-top:6px;
+    color:rgba(255,255,255,0.7);
+}
   
 .container{
     width:450px;
@@ -204,9 +228,17 @@ h1{
         <button id="prevBtn">⏮</button>
         <button id="playBtn">⏯</button>
         <button id="nextBtn">⏭</button>
+      
     </div>
 
     <audio id="audio"></audio>
+  <div class="progress-container">
+    <div class="progress-bar" id="progressBar"></div>
+</div>
+
+<div class="time">
+    <span id="currentTime">0:00</span>
+    <span id="duration">0:00</span>
 </div>
   
 <div class="container" id="window">
@@ -282,6 +314,10 @@ const playBtn = document.getElementById("playBtn");
 const nextBtn = document.getElementById("nextBtn");
 const prevBtn = document.getElementById("prevBtn");
 const trackName = document.getElementById("trackName");
+const audio = document.getElementById("audio");
+const progressBar = document.getElementById("progressBar");
+const currentTimeEl = document.getElementById("currentTime");
+const durationEl = document.getElementById("duration");
 
 // this is the playlist dont like put mp4s
 const playlist = [
@@ -342,7 +378,31 @@ prevBtn.onclick = () => {
 audio.onended = () => {
     nextBtn.click();
 };
+function formatTime(sec){
+    const m = Math.floor(sec / 60);
+    const s = Math.floor(sec % 60);
+    return `${m}:${s < 10 ? "0" + s : s}`;
+}
 
+
+audio.addEventListener("loadedmetadata", () => {
+    durationEl.textContent = formatTime(audio.duration);
+});
+
+
+audio.addEventListener("timeupdate", () => {
+    const percent = (audio.currentTime / audio.duration) * 100;
+    progressBar.style.width = percent + "%";
+
+    currentTimeEl.textContent = formatTime(audio.currentTime);
+});
+  document.querySelector(".progress-container").addEventListener("click", (e) => {
+    const rect = e.target.getBoundingClientRect();
+    const clickX = e.clientX - rect.left;
+    const width = rect.width;
+
+    audio.currentTime = (clickX / width) * audio.duration;
+});
 
 loadSong(current);
 </script>
