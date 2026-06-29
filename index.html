@@ -281,11 +281,11 @@ const nextBtn = document.getElementById("nextBtn");
 const prevBtn = document.getElementById("prevBtn");
 const trackName = document.getElementById("trackName");
 
-// playlist (add your songs here)
+// this is the playlist dont like put mp4s
 const playlist = [
-    "song1.mp3",
-    "song2.mp3",
-    "song3.mp3"
+    "honest.mp3",
+    "dramaqueen.mp3",
+    "takemehome.mp3"
 ];
 
 let current = 0;
@@ -295,11 +295,11 @@ function loadSong(index){
     const src = playlist[index];
     audio.src = src;
 
-    // extract file name only
+    
     trackName.textContent = src.split("/").pop().replace(".mp3", "");
 
     audio.loop = true;
-    audio.volume = 0.4; // fixed volume
+    audio.volume = 0.4; 
 
     if(isPlaying){
         audio.play();
@@ -336,12 +336,12 @@ prevBtn.onclick = () => {
     playSong();
 };
 
-// auto-next when ended (just in case loop ever gets disabled)
+
 audio.onended = () => {
     nextBtn.click();
 };
 
-// init
+
 loadSong(current);
 </script>
 </body>
