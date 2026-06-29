@@ -50,6 +50,43 @@ body::before{
 }
 
 
+  .music-player{
+    position:fixed;
+    bottom:20px;
+    left:20px;
+
+    width:260px;
+    padding:18px;
+
+    background:rgba(255,255,255,0.08);
+    backdrop-filter:blur(15px);
+    -webkit-backdrop-filter:blur(15px);
+
+    border:1px solid rgba(255,255,255,0.15);
+    border-radius:20px;
+
+    box-shadow:
+        0 0 30px rgba(100,0,180,.25),
+        inset 0 0 15px rgba(255,255,255,.03);
+
+    color:white;
+    font-family:Segoe UI, sans-serif;
+}
+
+.music-title{
+    font-size:14px;
+    margin-bottom:10px;
+    color:rgba(255,255,255,0.75);
+    letter-spacing:1px;
+    text-transform:lowercase;
+}
+
+.music-player audio{
+    width:100%;
+    filter: invert(1) brightness(1.2);
+    opacity:0.8;
+}
+  
 .container{
     width:450px;
     padding:35px;
@@ -161,6 +198,14 @@ h1{
         <a href="https://last.fm/user/three_dpi" class="btn">last.fm</a>
     </div>
     
+</div>
+
+  <div class="music-player" id="music">
+    <div class="music-title">now playing</div>
+
+    <audio controls>
+        <source src="honest.mp3" type="audio/mpeg">
+    </audio>
 </div>
 
 
