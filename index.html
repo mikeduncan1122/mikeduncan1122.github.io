@@ -50,13 +50,13 @@ body::before{
 }
 
 
-  .music-player{
+.music-player{
     position:fixed;
     bottom:20px;
     left:20px;
 
     width:260px;
-    padding:18px;
+    padding:16px;
 
     background:rgba(255,255,255,0.08);
     backdrop-filter:blur(15px);
@@ -66,25 +66,44 @@ body::before{
     border-radius:20px;
 
     box-shadow:
-        0 0 30px rgba(100,0,180,.25),
+        0 0 40px rgba(100,0,180,.25),
         inset 0 0 15px rgba(255,255,255,.03);
 
     color:white;
     font-family:Segoe UI, sans-serif;
 }
 
-.music-title{
-    font-size:14px;
-    margin-bottom:10px;
-    color:rgba(255,255,255,0.75);
-    letter-spacing:1px;
-    text-transform:lowercase;
+.music-header{
+    display:flex;
+    justify-content:space-between;
+    font-size:12px;
+    margin-bottom:12px;
+    color:rgba(255,255,255,0.7);
 }
 
-.music-player audio{
-    width:100%;
-    filter: invert(1) brightness(1.2);
-    opacity:0.8;
+.music-controls{
+    display:flex;
+    justify-content:space-between;
+}
+
+.music-controls button{
+    flex:1;
+    margin:0 4px;
+    padding:8px;
+
+    background:rgba(120,0,180,.2);
+    border:1px solid rgba(255,255,255,0.12);
+    border-radius:12px;
+
+    color:white;
+    cursor:pointer;
+
+    transition:0.2s;
+}
+
+.music-controls button:hover{
+    background:rgba(160,0,220,.35);
+    transform:translateY(-2px);
 }
   
 .container{
@@ -198,14 +217,19 @@ h1{
         <a href="https://last.fm/user/three_dpi" class="btn">last.fm</a>
     </div>
     
-</div>
+<div class="music-player" id="music">
+    <div class="music-header">
+        <span>now playing:</span>
+        <span id="trackName">none</span>
+    </div>
 
-  <div class="music-player" id="music">
-    <div class="music-title">now playing</div>
+    <div class="music-controls">
+        <button id="prevBtn">⏮</button>
+        <button id="playBtn">⏯</button>
+        <button id="nextBtn">⏭</button>
+    </div>
 
-    <audio controls>
-        <source src="honest.mp3" type="audio/mpeg">
-    </audio>
+    <audio id="audio"></audio>
 </div>
 
 
@@ -250,6 +274,75 @@ document.addEventListener('touchend',stop);
  requestAnimationFrame(anim);
 })();
 addEventListener('resize',()=>{x=Math.min(x,innerWidth-win.offsetWidth);y=Math.min(y,innerHeight-win.offsetHeight);draw();});
+
+  const audio = document.getElementById("audio");
+const playBtn = document.getElementById("playBtn");
+const nextBtn = document.getElementById("nextBtn");
+const prevBtn = document.getElementById("prevBtn");
+const trackName = document.getElementById("trackName");
+
+// playlist (add your songs here)
+const playlist = [
+    "song1.mp3",
+    "song2.mp3",
+    "song3.mp3"
+];
+
+let current = 0;
+let isPlaying = false;
+
+function loadSong(index){
+    const src = playlist[index];
+    audio.src = src;
+
+    // extract file name only
+    trackName.textContent = src.split("/").pop().replace(".mp3", "");
+
+    audio.loop = true;
+    audio.volume = 0.4; // fixed volume
+
+    if(isPlaying){
+        audio.play();
+    }
+}
+
+function playSong(){
+    isPlaying = true;
+    audio.play();
+}
+
+function pauseSong(){
+    isPlaying = false;
+    audio.pause();
+}
+
+playBtn.onclick = () => {
+    if(audio.paused){
+        playSong();
+    } else {
+        pauseSong();
+    }
+};
+
+nextBtn.onclick = () => {
+    current = (current + 1) % playlist.length;
+    loadSong(current);
+    playSong();
+};
+
+prevBtn.onclick = () => {
+    current = (current - 1 + playlist.length) % playlist.length;
+    loadSong(current);
+    playSong();
+};
+
+// auto-next when ended (just in case loop ever gets disabled)
+audio.onended = () => {
+    nextBtn.click();
+};
+
+// init
+loadSong(current);
 </script>
 </body>
 </html>
