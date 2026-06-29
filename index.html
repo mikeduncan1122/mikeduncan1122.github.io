@@ -240,6 +240,7 @@ h1{
     <span id="currentTime">0:00</span>
     <span id="duration">0:00</span>
 </div>
+</div>  
   
 <div class="container" id="window">
 
@@ -309,7 +310,7 @@ document.addEventListener('touchend',stop);
 })();
 addEventListener('resize',()=>{x=Math.min(x,innerWidth-win.offsetWidth);y=Math.min(y,innerHeight-win.offsetHeight);draw();});
 
-  const audio = document.getElementById("audio");
+
 const playBtn = document.getElementById("playBtn");
 const nextBtn = document.getElementById("nextBtn");
 const prevBtn = document.getElementById("prevBtn");
