@@ -322,7 +322,6 @@ const durationEl = document.getElementById("duration");
 
 // this is the playlist dont like put mp4s
 const playlist = [
-    "mixtapebeatsnippet013.mp3"
     "honest.mp3",
     "dramaqueen.mp3",
     "takemehome.mp3"
@@ -333,12 +332,13 @@ const playlist = [
     "reputation.mp3"
     "perfection.mp3"
     "deadmeat.mp3"
+    "mixtapebeatsnippet013.mp3"
     
     
 ];
 
 let current = 0;
-let isPlaying = false;
+let isPlaying = true;
 
 function loadSong(index){
     const src = playlist[index];
@@ -348,7 +348,7 @@ function loadSong(index){
     trackName.textContent = src.split("/").pop().replace(".mp3", "");
 
     audio.loop = true;
-    audio.volume = 0.4; 
+    audio.volume = 0.15; 
 
     if(isPlaying){
         audio.play();
