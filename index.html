@@ -159,7 +159,7 @@ body::before{
 .profile{
     width:120px;
     height:120px;
-    margin:0 auto 20px;
+    margin:20px auto 20px;
 
     border-radius:50%;
     overflow:hidden;
@@ -214,6 +214,63 @@ h1{
     background:rgba(140,0,220,.4);
     transform:translateY(-2px);
 }
+
+#physicsLayer{
+    position:fixed;
+    top:0;left:0;
+    width:100%;height:100%;
+    pointer-events:none;
+    z-index:0;
+}
+
+.falling-img{
+    position:fixed;
+    width:80px;
+    height:80px;
+    border-radius:12px;
+    object-fit:cover;
+    cursor:grab;
+    pointer-events:auto;
+    z-index:0;
+    box-shadow:0 0 20px rgba(100,0,180,.4);
+    border:1px solid rgba(255,255,255,.15);
+    user-select:none;
+}
+
+.falling-img:active{
+    cursor:grabbing;
+}
+
+.top-buttons{
+    position:fixed;
+    top:20px;
+    left:20px;
+    display:flex;
+    gap:12px;
+    z-index:10;
+}
+
+.top-btn{
+    padding:12px 24px;
+    border-radius:15px;
+    color:white;
+    background:rgba(255,255,255,0.08);
+    backdrop-filter:blur(15px);
+    -webkit-backdrop-filter:blur(15px);
+    border:1px solid rgba(255,255,255,0.15);
+    box-shadow:0 0 40px rgba(100,0,180,.25), inset 0 0 15px rgba(255,255,255,.03);
+    cursor:pointer;
+    font-size:0.95rem;
+    border:none;
+    outline:none;
+    transition:.25s;
+    user-select:none;
+}
+
+.top-btn:hover{
+    background:rgba(140,0,220,.4);
+    transform:translateY(-2px);
+}
 </style>
 </head>
     
@@ -242,7 +299,13 @@ h1{
     <span id="duration">0:00</span>
 </div>
 </div>  
-  
+
+<div class="top-buttons">
+    <button class="top-btn" id="pictureBtn">picture</button>
+    <button class="top-btn" id="friendBtn">friend</button>
+    <button class="top-btn" id="clearBtn">clear</button>
+</div>
+
 <div class="container" id="window">
 
     <div class="profile">
@@ -265,9 +328,10 @@ h1{
     
         <a href="https://last.fm/user/three_dpi" class="btn">last.fm</a>
     </div>
-    
 
+</div>
 
+<div id="physicsLayer"></div>
 
 <script>
 const win=document.getElementById('window');
@@ -417,6 +481,282 @@ audio.addEventListener("timeupdate", () => {
 });
 
 loadSong(current);
+
+const GRAVITY = 0.4;
+const BOUNCE = 0.65;
+const FRICTION = 0.99;
+const COLLISION_DAMP = 0.7;
+
+const physicsLayer = document.getElementById("physicsLayer");
+const particles = [];
+let draggedParticle = null;
+
+const GITHUB_BASE = "";
+
+const pictureImages = [
+  "1437160236799754393.png",
+  "1757858180463.png",
+  "3adf19de030ee705493e8d89f82798d5.webp",
+  "Abusive_Exes_Ending.webp",
+  "Ari_sc3.webp",
+  "Emily_sc4_angry.webp",
+  "FlOYuFSX0AAAS_v.png",
+  "G-bXCtXXsAA8EIF.png",
+  "IMG_1078.png",
+  "IMG_1855.png",
+  "IMG_6082.png",
+  "IMG_6867.webp",
+  "IMG_8092.png",
+  "IMG_8886.png",
+  "Jecka_designer.webp",
+  "Jecka_sc1.webp",
+  "Nicole.webp",
+  "Screenshot_20260701-133552_TikTok.jpg",
+  "SpotiDown.App - swirl - Worldcorp Enterprises.jpg",
+  "bakerycorp (1).png",
+  "bakerycorp in pink!.png",
+  "bakerycorp noraml.jpg",
+  "bakerycorp.png",
+  "boz.png",
+  "bright.png",
+  "bright1.png",
+  "bright2.png",
+  "bright3.png",
+  "chained juls.png",
+  "content.png",
+  "djcannible.png",
+  "fingybite.gif",
+  "image (2).png",
+  "imdrawing.png",
+  "infopsec.gif",
+  "media_15cbb094-3f45-4f93-ade2-7d76715306bf.png",
+  "opsec.gif",
+  "opsec3.gif",
+  "opsec5.gif",
+  "quote_1510929536265486517.gif",
+  "tung.png"
+];
+
+const friendImages = [
+    "friends/img1.png",
+    "friends/img2.png",
+    "friends/img3.png"
+];
+
+function randomFrom(arr){
+    return arr[Math.floor(Math.random() * arr.length)];
+}
+
+function getMusicRect(){
+    const el = document.getElementById("music");
+    if(!el)return null;
+    const r = el.getBoundingClientRect();
+    return { x: r.left, y: r.top, w: r.width, h: r.height };
+}
+
+function physicsUpdate(){
+    const music = getMusicRect();
+
+    for(let i = 0; i < particles.length; i++){
+        const p = particles[i];
+        if(p.drag) continue;
+        p.vy += GRAVITY;
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vx *= FRICTION;
+
+        if(p.x < 0){ p.x = 0; p.vx = -p.vx * BOUNCE; }
+        if(p.y < 0){ p.y = 0; p.vy = -p.vy * BOUNCE; }
+        if(p.x + p.size > innerWidth){ p.x = innerWidth - p.size; p.vx = -p.vx * BOUNCE; }
+        if(p.y + p.size > innerHeight){ p.y = innerHeight - p.size; p.vy = -p.vy * BOUNCE; }
+
+        if(music){
+            const cx = p.x + p.size/2, cy = p.y + p.size/2;
+            const closestX = Math.max(music.x, Math.min(cx, music.x + music.w));
+            const closestY = Math.max(music.y, Math.min(cy, music.y + music.h));
+            const dx = cx - closestX;
+            const dy = cy - closestY;
+            const dist = Math.sqrt(dx*dx + dy*dy);
+            const minDist = p.size / 2;
+
+            if(dist < minDist){
+                const overlap = minDist - dist;
+                if(dist > 0){
+                    const nx = dx / dist;
+                    const ny = dy / dist;
+                    p.x += nx * overlap;
+                    p.y += ny * overlap;
+                    const relVn = p.vx * nx + p.vy * ny;
+                    if(relVn < 0){
+                        p.vx -= relVn * nx * 1.2;
+                        p.vy -= relVn * ny * 1.2;
+                    }
+                } else {
+                    p.y -= overlap;
+                    if(p.vy > 0) p.vy = -p.vy * BOUNCE;
+                }
+            }
+        }
+
+        p.el.style.left = p.x + "px";
+        p.el.style.top = p.y + "px";
+    }
+
+    for(let i = 0; i < particles.length; i++){
+        for(let j = i + 1; j < particles.length; j++){
+            const a = particles[i], b = particles[j];
+            if(a.drag || b.drag) continue;
+            const dx = (a.x + a.size/2) - (b.x + b.size/2);
+            const dy = (a.y + a.size/2) - (b.y + b.size/2);
+            const dist = Math.sqrt(dx*dx + dy*dy);
+            const minDist = (a.size + b.size) / 2;
+
+            if(dist < minDist && dist > 0){
+                const overlap = minDist - dist;
+                const nx = dx / dist;
+                const ny = dy / dist;
+
+                const totalMass = a.mass + b.mass;
+                const ratioA = b.mass / totalMass;
+                const ratioB = a.mass / totalMass;
+
+                a.x += nx * overlap * ratioA;
+                a.y += ny * overlap * ratioA;
+                b.x -= nx * overlap * ratioB;
+                b.y -= ny * overlap * ratioB;
+
+                const relVx = a.vx - b.vx;
+                const relVy = a.vy - b.vy;
+                const relVn = relVx * nx + relVy * ny;
+
+                if(relVn < 0){
+                    const impulse = -(1 + COLLISION_DAMP) * relVn / (1/a.mass + 1/b.mass);
+                    a.vx += (impulse / a.mass) * nx;
+                    a.vy += (impulse / a.mass) * ny;
+                    b.vx -= (impulse / b.mass) * nx;
+                    b.vy -= (impulse / b.mass) * ny;
+                }
+            }
+        }
+    }
+}
+
+function spawnPhysicsImage(folder, imageList){
+    const img = document.createElement("img");
+    img.className = "falling-img";
+    img.src = GITHUB_BASE + randomFrom(imageList);
+    img.draggable = false;
+
+    const size = 60 + Math.random() * 40;
+    img.style.width = size + "px";
+    img.style.height = size + "px";
+
+    const x = Math.random() * (innerWidth - size);
+    const y = -size - Math.random() * 200;
+
+    img.style.left = x + "px";
+    img.style.top = y + "px";
+
+    physicsLayer.appendChild(img);
+
+    const pObj = {
+        el: img,
+        x: x,
+        y: y,
+        vx: (Math.random() - 0.5) * 4,
+        vy: 0,
+        size: size,
+        mass: size,
+        group: folder,
+        drag: false,
+        ox: 0,
+        oy: 0
+    };
+
+    particles.push(pObj);
+
+    img.addEventListener("mousedown", (e) => {
+        pObj.drag = true;
+        pObj.ox = e.clientX - pObj.x;
+        pObj.oy = e.clientY - pObj.y;
+        pObj.lx = e.clientX;
+        pObj.ly = e.clientY;
+        e.stopPropagation();
+    });
+
+    img.addEventListener("touchstart", (e) => {
+        const t = e.touches[0];
+        pObj.drag = true;
+        pObj.ox = t.clientX - pObj.x;
+        pObj.oy = t.clientY - pObj.y;
+        pObj.lx = t.clientX;
+        pObj.ly = t.clientY;
+        e.stopPropagation();
+    }, {passive: false});
+}
+
+document.addEventListener("mousemove", (e) => {
+    for(const p of particles){
+        if(p.drag){
+            p.vx = e.clientX - p.lx;
+            p.vy = e.clientY - p.ly;
+            p.x = e.clientX - p.ox;
+            p.y = e.clientY - p.oy;
+            p.lx = e.clientX;
+            p.ly = e.clientY;
+            p.el.style.left = p.x + "px";
+            p.el.style.top = p.y + "px";
+        }
+    }
+});
+
+document.addEventListener("touchmove", (e) => {
+    const t = e.touches[0];
+    for(const p of particles){
+        if(p.drag){
+            p.vx = t.clientX - p.lx;
+            p.vy = t.clientY - p.ly;
+            p.x = t.clientX - p.ox;
+            p.y = t.clientY - p.oy;
+            p.lx = t.clientX;
+            p.ly = t.clientY;
+            p.el.style.left = p.x + "px";
+            p.el.style.top = p.y + "px";
+        }
+    }
+}, {passive: false});
+
+document.addEventListener("mouseup", () => {
+    for(const p of particles){
+        p.drag = false;
+    }
+});
+
+document.addEventListener("touchend", () => {
+    for(const p of particles){
+        p.drag = false;
+    }
+});
+
+document.getElementById("pictureBtn").addEventListener("click", () => {
+    spawnPhysicsImage("pictures", pictureImages);
+});
+
+document.getElementById("friendBtn").addEventListener("click", () => {
+    spawnPhysicsImage("friends", friendImages);
+});
+
+document.getElementById("clearBtn").addEventListener("click", () => {
+    for(const p of particles){
+        p.el.remove();
+    }
+    particles.length = 0;
+});
+
+(function physicsLoop(){
+    physicsUpdate();
+    requestAnimationFrame(physicsLoop);
+})();
 </script>
 </body>
 </html>
