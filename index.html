@@ -562,17 +562,17 @@ function physicsUpdate(){
 
         if(p.x < 0){ p.x = 0; p.vx = -p.vx * BOUNCE; }
         if(p.y < 0){ p.y = 0; p.vy = -p.vy * BOUNCE; }
-        if(p.x + p.size > innerWidth){ p.x = innerWidth - p.size; p.vx = -p.vx * BOUNCE; }
-        if(p.y + p.size > innerHeight){ p.y = innerHeight - p.size; p.vy = -p.vy * BOUNCE; }
+        if(p.x + p.w > innerWidth){ p.x = innerWidth - p.w; p.vx = -p.vx * BOUNCE; }
+        if(p.y + p.h > innerHeight){ p.y = innerHeight - p.h; p.vy = -p.vy * BOUNCE; }
 
         if(music){
-            const cx = p.x + p.size/2, cy = p.y + p.size/2;
+            const cx = p.x + p.w/2, cy = p.y + p.h/2;
             const closestX = Math.max(music.x, Math.min(cx, music.x + music.w));
             const closestY = Math.max(music.y, Math.min(cy, music.y + music.h));
             const dx = cx - closestX;
             const dy = cy - closestY;
             const dist = Math.sqrt(dx*dx + dy*dy);
-            const minDist = p.size / 2;
+            const minDist = Math.max(p.w, p.h) / 2;
 
             if(dist < minDist){
                 const overlap = minDist - dist;
@@ -601,24 +601,41 @@ function physicsUpdate(){
         for(let j = i + 1; j < particles.length; j++){
             const a = particles[i], b = particles[j];
             if(a.drag || b.drag) continue;
-            const dx = (a.x + a.size/2) - (b.x + b.size/2);
-            const dy = (a.y + a.size/2) - (b.y + b.size/2);
-            const dist = Math.sqrt(dx*dx + dy*dy);
-            const minDist = (a.size + b.size) / 2;
+            const aL = a.x, aR = a.x + a.w, aT = a.y, aB = a.y + a.h;
+            const bL = b.x, bR = b.x + b.w, bT = b.y, bB = b.y + b.h;
 
-            if(dist < minDist && dist > 0){
-                const overlap = minDist - dist;
-                const nx = dx / dist;
-                const ny = dy / dist;
+            if(aR > bL && aL < bR && aB > bT && aT < bB){
+                const overlapL = aR - bL;
+                const overlapR = bR - aL;
+                const overlapT = aB - bT;
+                const overlapB = bB - aT;
+
+                const overlapX = Math.min(overlapL, overlapR);
+                const overlapY = Math.min(overlapT, overlapB);
+
+                let nx, ny;
+                if(overlapX < overlapY){
+                    nx = overlapL < overlapR ? -1 : 1;
+                    ny = 0;
+                } else {
+                    nx = 0;
+                    ny = overlapT < overlapB ? -1 : 1;
+                }
 
                 const totalMass = a.mass + b.mass;
                 const ratioA = b.mass / totalMass;
                 const ratioB = a.mass / totalMass;
 
-                a.x += nx * overlap * ratioA;
-                a.y += ny * overlap * ratioA;
-                b.x -= nx * overlap * ratioB;
-                b.y -= ny * overlap * ratioB;
+                if(nx !== 0){
+                    const overlap = overlapL < overlapR ? overlapL : overlapR;
+                    a.x += nx * overlap * ratioA;
+                    b.x -= nx * overlap * ratioB;
+                }
+                if(ny !== 0){
+                    const overlap = overlapT < overlapB ? overlapT : overlapB;
+                    a.y += ny * overlap * ratioA;
+                    b.y -= ny * overlap * ratioB;
+                }
 
                 const relVx = a.vx - b.vx;
                 const relVy = a.vy - b.vy;
@@ -661,7 +678,8 @@ function spawnPhysicsImage(imageList){
         y: y,
         vx: (Math.random() - 0.5) * 4,
         vy: 0,
-        size: 100,
+        w: 100,
+        h: 100,
         mass: 100,
         group: "pictures",
         drag: false,
@@ -675,8 +693,9 @@ function spawnPhysicsImage(imageList){
         const h = Math.round(img.naturalHeight * scale);
         img.style.width = w + "px";
         img.style.height = h + "px";
-        pObj.size = Math.max(w, h);
-        pObj.mass = pObj.size;
+        pObj.w = w;
+        pObj.h = h;
+        pObj.mass = w * h;
     };
 
     particles.push(pObj);
