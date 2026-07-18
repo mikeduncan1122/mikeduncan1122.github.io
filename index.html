@@ -302,7 +302,6 @@ h1{
 
 <div class="top-buttons">
     <button class="top-btn" id="pictureBtn">picture</button>
-    <button class="top-btn" id="friendBtn">friend</button>
     <button class="top-btn" id="clearBtn">clear</button>
 </div>
 
@@ -537,11 +536,7 @@ const pictureImages = [
   "pictures/tung.png"
 ];
 
-const friendImages = [
-    "friends/img1.png",
-    "friends/img2.png",
-    "friends/img3.png"
-];
+
 
 function randomFrom(arr){
     return arr[Math.floor(Math.random() * arr.length)];
@@ -641,18 +636,19 @@ function physicsUpdate(){
     }
 }
 
-function spawnPhysicsImage(folder, imageList){
+function spawnPhysicsImage(imageList){
     const img = document.createElement("img");
     img.className = "falling-img";
     img.src = GITHUB_BASE + randomFrom(imageList);
     img.draggable = false;
 
-    const size = 60 + Math.random() * 40;
-    img.style.width = size + "px";
-    img.style.height = size + "px";
+    img.style.width = "auto";
+    img.style.height = "auto";
+    img.style.maxWidth = "200px";
+    img.style.maxHeight = "200px";
 
-    const x = Math.random() * (innerWidth - size);
-    const y = -size - Math.random() * 200;
+    const x = Math.random() * (innerWidth - 100);
+    const y = -100 - Math.random() * 200;
 
     img.style.left = x + "px";
     img.style.top = y + "px";
@@ -665,12 +661,22 @@ function spawnPhysicsImage(folder, imageList){
         y: y,
         vx: (Math.random() - 0.5) * 4,
         vy: 0,
-        size: size,
-        mass: size,
-        group: folder,
+        size: 100,
+        mass: 100,
+        group: "pictures",
         drag: false,
         ox: 0,
         oy: 0
+    };
+
+    img.onload = () => {
+        const scale = Math.min(200 / img.naturalWidth, 200 / img.naturalHeight, 1);
+        const w = Math.round(img.naturalWidth * scale);
+        const h = Math.round(img.naturalHeight * scale);
+        img.style.width = w + "px";
+        img.style.height = h + "px";
+        pObj.size = Math.max(w, h);
+        pObj.mass = pObj.size;
     };
 
     particles.push(pObj);
@@ -739,11 +745,7 @@ document.addEventListener("touchend", () => {
 });
 
 document.getElementById("pictureBtn").addEventListener("click", () => {
-    spawnPhysicsImage("pictures", pictureImages);
-});
-
-document.getElementById("friendBtn").addEventListener("click", () => {
-    spawnPhysicsImage("friends", friendImages);
+    spawnPhysicsImage(pictureImages);
 });
 
 document.getElementById("clearBtn").addEventListener("click", () => {
