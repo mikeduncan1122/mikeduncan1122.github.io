@@ -22,7 +22,7 @@
 body{
     min-height:100vh;
     overflow:hidden;
-    background:#000; /* base background color - solid black */
+    background:#000; 
 }
 
 
@@ -34,12 +34,9 @@ body::before{
     width:150%;
     height:150%;
     background:
-        /* background glow #1 - dark purple, top-left corner */
-        radial-gradient(circle at 20% 20%, rgba(90,0,120,.4), transparent 40%),
-        /* background glow #2 - deep violet, bottom-right corner */
-        radial-gradient(circle at 80% 70%, rgba(60,0,100,.4), transparent 40%),
-        /* background glow #3 - bright purple, center */
-        radial-gradient(circle at 50% 50%, rgba(120,0,180,.25), transparent 50%);
+        radial-gradient(circle at 20% 20%, rgba(245, 241, 241, 0.4), transparent 40%),
+        radial-gradient(circle at 80% 70%, rgba(170, 138, 138, 0.4), transparent 40%),
+        radial-gradient(circle at 50% 50%, rgba(151, 146, 146, 0.4), transparent 50%);
     animation: gradientMove 20s ease-in-out infinite alternate;
     z-index:-1;
 }
@@ -277,25 +274,16 @@ h1{
 
     <div class="profile">
         <!-- this is for me later, put the image here retard dont forget pls ilysm -->
-        <img src="https://cdn.discordapp.com/avatars/516102055945961472/a9b036735f7098a08ca207c67f71126b.webp?size=1024" alt="bad image!">
+        <img src="https://cdn.discordapp.com/avatars/1410458021846319205/2eb7856749ece05e0ed20b8c3ebfc160.webp?size=1024" alt="bad image!">
     </div>
 
     <h1>sinned</h1>
 
     <p class="description">
-        hi hello im sinned or sin whatever
-        i do a little coding n whatnot andd
-        i used to be 3dpi and then my account
-        was term'd soo here we are.. sinflix is 
-        my movie site its like netflix but sin.. flix.. 
+        whats up im dir i help make cheats
+      for bakerycorp and i manage domain and
+      i love music
     </p>
-
-    <div class="buttons">
-        <a href="https://youenvy.me/sinflix" class="btn">sinflix</a>
-    
-        <a href="https://last.fm/user/three_dpi" class="btn">last.fm</a>
-    </div>
-
 </div>
 
 <div id="physicsLayer"></div>
@@ -354,23 +342,14 @@ const durationEl = document.getElementById("duration");
 
 // this is the playlist dont like put mp4s
 const playlist = [
-    "honest.mp3",
-    "dramaqueen.mp3",
-    "takemehome.mp3",
-    "deathofskitz.mp3",
-    "lovemakesmenauseous.mp3",
-    "puking.mp3",
-    "natural.mp3",
-    "reputation.mp3",
-    "perfection.mp3",
-    "deadmeat.mp3",
-    "mixtapebeatsnippet013.mp3"
+    "dirm/stupid.mp3",
+    "dirm/highnholy.mp3"
     
     
 ];
 
 let current = 0;
-let isPlaying = false;
+let isPlaying = true;
 
 function loadSong(index){
     const src = playlist[index];
